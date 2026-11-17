@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demographics made Sculptural</title>
+  <meta name="description" content="Canada's population from 1990 to 2050, drawn as a line and as a sculpture, and read one person at a time.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="hero wrap">
+  <h1><span class="mute">Demographics made</span> Sculptural<span class="dot">.</span></h1>
+  <p class="label byline">Greg Goralski - demo - AI Generated</p>
+  <p class="lede">Population by age, 1990 to 2050. <strong>Choose a place and a year,
+    then click a point on the line</strong>: an age in a year is a person, with a
+    birth year and a life to read.</p>
+  <div class="segmented" id="countries" role="group" aria-label="Country or region"></div>
+</header>
+
+<main class="board wrap">
+
+  <!-- Left: the demographic -->
+  <section class="panel" aria-label="Population by age">
+    <div class="panel-head">
+      <span class="label" id="panel-title">Population by age</span>
+      <span class="readout" id="panel-readout"></span>
+    </div>
+
+    <div class="viz">
+      <div class="view view-line" id="view-line">
+        <svg id="line-chart" tabindex="0" role="img"
+             aria-label="Population by single year of age. Click to choose a person; arrow keys change their age."></svg>
+      </div>
+      <div class="view view-sculpture" id="view-sculpture" hidden>
+        <canvas id="sculpture-canvas" aria-label="The population as a 3D sculpture. Drag to turn it, click to choose a person."></canvas>
+        <div class="sculpture-labels" id="sculpture-labels" aria-hidden="true"></div>
+        <p class="viz-note label">Half the model, axis at the left edge · height = age · distance from the axis = people · drag to turn</p>
+        <p class="viz-fallback" id="sculpture-fallback" hidden>This browser could not start 3D graphics, so the sculpture is unavailable. The line view shows the same data.</p>
+      </div>
+    </div>
+
+    <div class="legend" id="legend" aria-label="Colour key"></div>
+
+    <div class="controls">
+      <div class="stepper" role="group" aria-label="Year">
+        <button class="pill round" id="prev" type="button" aria-label="Previous year">←</button>
+        <output class="year-big num" id="year-out" for="year">2026</output>
+        <button class="pill round" id="next" type="button" aria-label="Next year">→</button>
+      </div>
+      <label class="slider">
+        <span class="slider-top">
+          <span class="label">Year</span>
+          <span class="label" id="year-note"></span>
+        </span>
+        <input type="range" id="year" min="1990" max="2050" step="1" value="2026">
+      </label>
+      <button class="pill" id="play" type="button" aria-pressed="false">Play</button>
+      <div class="toggle" role="group" aria-label="View">
+        <button class="pill" type="button" data-view="line" aria-pressed="true">Line</button>
+        <button class="pill" type="button" data-view="sculpture" aria-pressed="false">Sculpture</button>
+      </div>
+      <button class="pill" id="export" type="button" hidden title="Download a detailed STL of this sculpture for 3D printing (400 mm tall)">Download STL</button>
+    </div>
+  </section>
+
+  <!-- Right: what the data says -->
+  <section class="info" aria-live="polite">
+    <p class="label">Selected person</p>
+    <p class="who" id="who"></p>
+    <div class="cols">
+      <div class="col">
+        <p class="label" id="col-a-title">That year</p>
+        <div id="stats-a"></div>
+      </div>
+      <div class="col">
+        <p class="label" id="col-b-title">This person</p>
+        <div id="stats-b"></div>
+      </div>
+    </div>
+    <div class="keys">
+      <p class="label">Key points</p>
+      <ul class="keypoints" id="keypoints"></ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="outro wrap">
+  <div class="sources">
+    <p class="label">Sources</p>
+    <ul>
+      <li><strong>United States, China, European Union: population by age.</strong> United Nations,
+        <a href="https://population.un.org/wpp/">World Population Prospects 2024</a> (counts to 2023, medium projection after;
+        the EU is the sum of its 27 members). Yearly indicators: <a href="https://data.worldbank.org/">World Bank</a>.
+        US recessions: National Bureau of Economic Research.</li>
+      <li><strong>Canada: population by age.</strong> Statistics Canada tables
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1710000501">17-10-0005-01</a> (1990 to 2026) and
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1710005701">17-10-0057-01</a> (projection, scenario M1, 2027 to 2050).</li>
+      <li><strong>Life expectancy, mothers' age, fertility by age.</strong> Statistics Canada tables
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1310083701">13-10-0837-01</a>,
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1310041701">13-10-0417-01</a> and
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1310041801">13-10-0418-01</a>.</li>
+      <li><strong>In school; living alone or with children; born outside Canada.</strong> Statistics Canada tables
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3710010101">37-10-0101-01</a>,
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=9810013401">98-10-0134-01</a> (2011, 2016, 2021 censuses) and
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=9810034701">98-10-0347-01</a> (2021 census).</li>
+      <li><strong>Born the same year.</strong> A widely known person from that place, shown only for birth years that have one; chosen from the most widely covered people on Wikidata.</li>
+      <li><strong>Generations.</strong> Statistics Canada's 2021 Census names for Canada; Pew Research Center's for the United States (borrowed for the EU, which has none of its own); decade of birth for China.</li>
+      <li><strong>Births per woman.</strong> Our World in Data long-run fertility series to 1990; Statistics Canada
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1310041801">13-10-0418-01</a> after.</li>
+      <li><strong>Immigration.</strong> Statistics Canada table <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1710000801">17-10-0008-01</a>.</li>
+      <li><strong>Economic growth.</strong> Maddison Project Database (via Our World in Data) to 1960;
+        <a href="https://data.worldbank.org/indicator/NY.GDP.MKTP.KD.ZG?locations=CA">World Bank</a> after.</li>
+      <li><strong>Recessions.</strong> C.D. Howe Institute Business Cycle Council;
+        <a href="https://cdhowe.org/publication/turning-points-business-cycles-canada-1926/">Cross and Bergevin, 2012</a>.</li>
+      <li><strong>Starting work in a recession.</strong> Oreopoulos, von Wachter and Heisz, "The Short- and Long-Term Career Effects of Graduating in a Recession", 2012.</li>
+      <li><strong>Workers per non-worker.</strong> People in work for each person who is not, of any age. Each age group's
+        population is multiplied by the share of that group in work: Statistics Canada table
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410032701">14-10-0327-01</a> for Canada (five-year age groups);
+        <a href="https://ilostat.ilo.org/">International Labour Organization</a> modelled estimates elsewhere (four age groups,
+        participation less unemployment). Years after 2025 hold the 2025 rates, so only the mix of ages changes.
+        Prime age means 25 to 54.</li>
+      <li><strong>Unemployment, income, education.</strong> Statistics Canada tables
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410032701">14-10-0327-01</a>,
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1110023901">11-10-0239-01</a> and
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410011801">14-10-0118-01</a>.</li>
+      <li><strong>Tuition.</strong> Statistics Canada tables
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3710015001">37-10-0150-01</a> and
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3710004501">37-10-0045-01</a>, adjusted with the Consumer Price Index
+        (<a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1810000501">18-10-0005-01</a>).</li>
+      <li><strong>House prices.</strong> Bank for International Settlements, real residential property prices, Canada.</li>
+      <li><strong>Spending on housing and food.</strong> Statistics Canada table
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1110022201">11-10-0222-01</a>, as a share of household consumption.</li>
+      <li><strong>Marriage and living with parents.</strong> Statistics Canada table
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3910005601">39-10-0056-01</a>;
+        <a href="https://www150.statcan.gc.ca/n1/daily-quotidien/220713/dq220713a-eng.htm">The Daily, 13 July 2022</a> (census years, joined by straight lines).</li>
+    </ul>
+    <p class="fine" id="data-notes"></p>
+  </div>
+</footer>
+
+<script src="data/data.js"></script>
+<script src="js/vendor/three.min.js"></script>
+<script src="js/generations.js"></script>
+<script src="js/line.js"></script>
+<script src="js/sculpture.js"></script>
+<script src="js/person.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
